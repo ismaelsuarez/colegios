@@ -73,6 +73,8 @@ def gestionar_db(directorio_base: str, ruta_objetivo: str) -> str | None:
 def init_db(project_root: str) -> str | None:
     """Inicializa la base de datos de colegios.
 
+    También inicializa la estructura jerárquica de subgrupos si existe el módulo.
+
     Args:
         project_root (str): Ruta raíz del proyecto.
 
@@ -80,4 +82,30 @@ def init_db(project_root: str) -> str | None:
         str | None: Ruta del archivo CSV o None si hay error.
     """
     ruta_db = os.path.join(project_root, 'src', 'base_de_datos', 'colegios.csv')
-    return gestionar_db(project_root, ruta_db)
+    db_path = gestionar_db(project_root, ruta_db)
+    
+    if db_path is None:
+        return None
+
+    # Inicializar estructura jerárquica si el archivo existe
+    if db_path and os.path.exists(db_path):
+        try:
+            from funciones.jerarquia import inicializar_estructura_jerarquica, sincronizar_estructura_jerarquica
+            from funciones.utilidades import leer_csv
+
+            # Inicializar carpetas
+            inicializar_estructura_jerarquica(db_path)
+
+            # Sincronizar datos existentes
+            colegios = leer_csv(db_path)
+            if colegios:
+                sincronizar_estructura_jerarquica(colegios, db_path)
+                print("✅ Estructura jerárquica inicializada")
+        except ImportError:
+            # Si el módulo jerarquia no está disponible, continuar sin estructura jerárquica
+            pass
+        except Exception as e:
+            # Si hay algún error, continuar sin estructura jerárquica
+            print(f"⚠️  No se pudo inicializar estructura jerárquica: {e}")
+
+    return db_path

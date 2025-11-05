@@ -58,7 +58,14 @@ def buscar_colegio(colegios: List[Dict], nombre: str) -> List[Dict]:
 
     if resultados:
         print(f"\n✅ Se encontraron {len(resultados)} colegio(s) con el nombre '{nombre}':")
-        mostrar_colegios(resultados)
+        # Mostrar colegios con índice numérico para facilitar identificación
+        for i, colegio in enumerate(resultados, 1):
+            print(
+                f"{i}. {colegio.get('Colegio', '')} | "
+                f"Provincia: {colegio.get('Provincia', '')} | "
+                f"Estudiantes: {colegio.get('Cantidad de Estudiantes', 0)} | "
+                f"Año: {colegio.get('Año de Creación', 0)}"
+            )
     else:
         print(f"\n⚠️ No se encontró ningún colegio que contenga '{nombre}'.")
 

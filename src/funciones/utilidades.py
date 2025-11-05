@@ -100,6 +100,9 @@ def leer_csv(ruta_csv: str) -> List[Dict]:
 def escribir_csv(ruta_csv: str, colegios: List[Dict]) -> bool:
     """Escribe la lista de colegios a un archivo CSV.
 
+    Además, sincroniza la estructura jerárquica de subgrupos organizando
+    los datos en subcarpetas por provincia, cantidad de estudiantes y año.
+
     Args:
         ruta_csv (str): Ruta donde guardar el CSV.
         colegios (list[dict]): Lista de diccionarios con los colegios.
@@ -119,6 +122,14 @@ def escribir_csv(ruta_csv: str, colegios: List[Dict]) -> bool:
             escritor = csv.DictWriter(archivo, fieldnames=campos)
             escritor.writeheader()
             escritor.writerows(colegios)
+
+        # Sincronizar estructura jerárquica después de escribir el archivo central
+        try:
+            from funciones.jerarquia import sincronizar_estructura_jerarquica
+            sincronizar_estructura_jerarquica(colegios, ruta_csv)
+        except ImportError:
+            # Si el módulo jerarquia no está disponible, continuar sin sincronización
+            pass
 
         return True
 
